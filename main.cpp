@@ -14,9 +14,12 @@ constexpr int gridSIDE = 50;
 constexpr int gridCOUNT = 20;
 
 Grid grid[gridCOUNT][gridCOUNT] {0, false};
+Grid nextgrid[gridCOUNT][gridCOUNT] {0, false};
+
 Color myBLACK = {0, 0, 0, 230};
 Color myRAYWHITE = {245, 245, 245, 150};
-Vector2 origin = {gridSIDE, gridSIDE};
+
+const Vector2 origin = {gridSIDE, gridSIDE};
 int gridAlive = 0;
 
 void InitGrid() 
@@ -44,11 +47,25 @@ void InitGrid()
 unsigned int CountAliveNeighbours(int i, int j) 
 {
     int count = 0;
-    for (int alpha = -1; alpha <= 1; alpha++) 
+    int alpha = -1;
+    int beta = -1;
+    for (; alpha <= 1; alpha++) 
     {
-        for (int beta = -1; beta <= 1; beta++)
+        if (!i && alpha == -1)
+            {
+               alpha++;                
+            }
+        if ((i == gridCOUNT - 1) && (alpha == 1))
+            {   
+                break;   
+            }
+        for (; beta <= 1; beta++)
         {
-            if (!(alpha || beta))
+            if ((!j) && beta == -1)
+            {
+                beta++;
+            }
+            if (((j == gridCOUNT - 1) && (beta == 1)) || !(alpha || beta))
             {
                 continue;
             }
@@ -56,6 +73,7 @@ unsigned int CountAliveNeighbours(int i, int j)
                 count++;
             }
         }
+        beta = -1;
     }
     return count;
 }
@@ -64,21 +82,28 @@ void UpdateGrid()
 {
     for (int i = 0; i < gridCOUNT; i++)
     {
-        for (int j = 0; j <gridCOUNT; j++)
+        for (int j = 0; j < gridCOUNT; j++)
         {
             unsigned int nalive = CountAliveNeighbours(i, j);
             if (nalive < 2 || nalive > 3)
             {
-                grid[i][j].alive = false; 
+                nextgrid[i][j].alive = false; 
             }
             if (nalive == 2)
             {
-                continue;
+                nextgrid[i][j].alive = grid[i][j].alive;
             }
             if (nalive == 3)
             {
-                grid[i][j].alive = true;
+                nextgrid[i][j].alive = true;
             }
+        }
+    }
+    for (int i = 0; i < gridCOUNT; i++)
+    {
+        for (int j = 0; j < gridCOUNT; j++) 
+        {
+            grid[i][j] = nextgrid[i][j];
         }
     }
 }
@@ -105,7 +130,7 @@ int main(int argc, char** argv) {
     if (argc > 1)
     {
         try 
-        {
+        {   
             fps = stoi(argv[1]);
         }
         catch (const invalid_argument& e)
@@ -113,6 +138,9 @@ int main(int argc, char** argv) {
             cout << "Please Enter a Valid Integer!!!" << endl;
             exit(1);
         }
+    }
+    if (fps <= 0) {
+        fps = 5;
     }
     SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_TRANSPARENT | FLAG_WINDOW_UNDECORATED);
     
@@ -127,7 +155,7 @@ int main(int argc, char** argv) {
 
         UpdateGrid();
         DrawGrid();
-        DrawText(TextFormat("AliveNeighboursOfgrid[3][4]: %d", CountAliveNeighbours(3, 4)), 0, 0, 25, RAYWHITE);
+        DrawText(TextFormat("Alive Grids: %d", gridAlive), 0, 0, 25, RAYWHITE);
         
         EndDrawing();
     }
