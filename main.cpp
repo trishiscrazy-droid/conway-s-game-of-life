@@ -110,6 +110,7 @@ void UpdateGrid()
 
 void DrawGrid()
 {
+    gridAlive = 0;
     for (int i = 0; i < gridCOUNT; i++)
     {
         for (int j = 0; j < gridCOUNT; j++)
@@ -119,6 +120,7 @@ void DrawGrid()
                 DrawRectangleLines(origin.x + gridSIDE*i, origin.y + gridSIDE*j, gridSIDE, gridSIDE, RAYWHITE);
             } else {
                 DrawRectangle(origin.x + gridSIDE*i, origin.y + gridSIDE*j, gridSIDE, gridSIDE, RAYWHITE);
+                gridAlive++;
             }
         }
     }    
