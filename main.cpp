@@ -7,7 +7,6 @@ using namespace std;
 class Grid 
 {
 public:
-    unsigned int neighboursalive = 0;
     bool alive = false;
 };
 
@@ -18,8 +17,73 @@ Grid grid[gridCOUNT][gridCOUNT] {0, false};
 Color myBLACK = {0, 0, 0, 230};
 Color myRAYWHITE = {245, 245, 245, 150};
 Vector2 origin = {gridSIDE, gridSIDE};
+int gridAlive = 0;
 
 void InitGrid() 
+{
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<int> dist(1, 10);
+
+    for (int i = 0; i < gridCOUNT; i++)
+    {
+        for (int j = 0; j < gridCOUNT; j++)
+        {
+            grid[i][j].alive = (dist(gen) <= 2);
+            if (!grid[i][j].alive)
+            {
+                DrawRectangleLines(origin.x + gridSIDE*i, origin.y + gridSIDE*j, gridSIDE, gridSIDE, myRAYWHITE);
+            } else {
+                DrawRectangle(origin.x + gridSIDE*i, origin.y + gridSIDE*j, gridSIDE, gridSIDE, myRAYWHITE);
+                gridAlive++;
+            }
+        }
+    }    
+}
+
+unsigned int CountAliveNeighbours(int i, int j) 
+{
+    int count = 0;
+    for (int alpha = -1; alpha <= 1; alpha++) 
+    {
+        for (int beta = -1; beta <= 1; beta++)
+        {
+            if (!(alpha || beta))
+            {
+                continue;
+            }
+            if (grid[i+alpha][j+beta].alive) {
+                count++;
+            }
+        }
+    }
+    return count;
+}
+
+void UpdateGrid() 
+{
+    for (int i = 0; i < gridCOUNT; i++)
+    {
+        for (int j = 0; j <gridCOUNT; j++)
+        {
+            unsigned int nalive = CountAliveNeighbours(i, j);
+            if (nalive < 2 || nalive > 3)
+            {
+                grid[i][j].alive = false; 
+            }
+            if (nalive == 2)
+            {
+                continue;
+            }
+            if (nalive == 3)
+            {
+                grid[i][j].alive = true;
+            }
+        }
+    }
+}
+
+void DrawGrid()
 {
     for (int i = 0; i < gridCOUNT; i++)
     {
@@ -34,32 +98,37 @@ void InitGrid()
         }
     }    
 }
-int main() {
 
-    random_device rd;
-    uniform_int_distribution<int> dist(1, 9);
-
+int main(int argc, char** argv) {
+    
+    unsigned int fps = 5;
+    if (argc > 1)
+    {
+        try 
+        {
+            fps = stoi(argv[1]);
+        }
+        catch (const invalid_argument& e)
+        {
+            cout << "Please Enter a Valid Integer!!!" << endl;
+            exit(1);
+        }
+    }
     SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_TRANSPARENT | FLAG_WINDOW_UNDECORATED);
     
     InitWindow(gridSIDE*(gridCOUNT+2), gridSIDE*(gridCOUNT+2), "CONWAY's GAME OF LIFE");
-    SetTargetFPS(60);
+    SetTargetFPS(fps);
 
-    grid[10][15].alive = true;
+    InitGrid();
     while (!WindowShouldClose())
     {
-        for (int i = 0; i < gridCOUNT; i++)
-        {
-            for (int j = 0; j < gridCOUNT; j++)
-            {
-                if (grid[i][j].alive) {
-                    DrawRectangle(origin.x + gridSIDE*i, origin.y + gridSIDE*j, gridSIDE, gridSIDE, myRAYWHITE);
-                }
-            }
-        }
         BeginDrawing();
         ClearBackground(myBLACK);
-        InitGrid();
 
+        UpdateGrid();
+        DrawGrid();
+        DrawText(TextFormat("AliveNeighboursOfgrid[3][4]: %d", CountAliveNeighbours(3, 4)), 0, 0, 25, RAYWHITE);
+        
         EndDrawing();
     }
 
