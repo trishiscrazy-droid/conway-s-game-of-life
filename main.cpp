@@ -1,6 +1,8 @@
 #include "include/raylib.h"
 #include <iostream>
 #include <random>
+#include <cstdlib>
+#include <ctime>
 
 using namespace std;
 
@@ -18,6 +20,7 @@ Grid nextgrid[gridCOUNT][gridCOUNT] {0, false};
 
 Color myBLACK = {0, 0, 0, 230};
 Color myRAYWHITE = {245, 245, 245, 150};
+Color colors[] {{230, 41, 55, 230}, {0, 158, 47, 230}, {102, 191, 255, 230}, {135, 60, 190, 230}, {211, 176, 131, 230}};
 
 const Vector2 origin = {gridSIDE, gridSIDE};
 int gridAlive = 0;
@@ -37,7 +40,7 @@ void InitGrid()
             {
                 DrawRectangleLines(origin.x + gridSIDE*i, origin.y + gridSIDE*j, gridSIDE, gridSIDE, myRAYWHITE);
             } else {
-                DrawRectangle(origin.x + gridSIDE*i, origin.y + gridSIDE*j, gridSIDE, gridSIDE, myRAYWHITE);
+                DrawRectangle(origin.x + gridSIDE*i, origin.y + gridSIDE*j, gridSIDE, gridSIDE, colors[rand() % 5]);
                 gridAlive++;
             }
         }
@@ -119,7 +122,7 @@ void DrawGrid()
             {
                 DrawRectangleLines(origin.x + gridSIDE*i, origin.y + gridSIDE*j, gridSIDE, gridSIDE, RAYWHITE);
             } else {
-                DrawRectangle(origin.x + gridSIDE*i, origin.y + gridSIDE*j, gridSIDE, gridSIDE, RAYWHITE);
+                DrawRectangle(origin.x + gridSIDE*i, origin.y + gridSIDE*j, gridSIDE, gridSIDE, colors[rand() % 5]);
                 gridAlive++;
             }
         }
@@ -148,6 +151,7 @@ int main(int argc, char** argv) {
     
     InitWindow(gridSIDE*(gridCOUNT+2), gridSIDE*(gridCOUNT+2), "CONWAY's GAME OF LIFE");
     SetTargetFPS(fps);
+    srand(time(NULL));
 
     InitGrid();
     while (!WindowShouldClose())
