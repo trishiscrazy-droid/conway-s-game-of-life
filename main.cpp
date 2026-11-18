@@ -12,15 +12,14 @@ public:
     bool alive = false;
 };
 
-constexpr int gridSIDE = 50;
-constexpr int gridCOUNT = 20;
+constexpr int gridSIDE = 20;
+constexpr int gridCOUNT = 50;
 
 Grid grid[gridCOUNT][gridCOUNT] {0, false};
 Grid nextgrid[gridCOUNT][gridCOUNT] {0, false};
 
 Color myBLACK = {0, 0, 0, 230};
 Color myRAYWHITE = {245, 245, 245, 150};
-Color colors[] {{230, 41, 55, 230}, {0, 158, 47, 230}, {102, 191, 255, 230}, {135, 60, 190, 230}, {211, 176, 131, 230}};
 
 const Vector2 origin = {gridSIDE, gridSIDE};
 int gridAlive = 0;
@@ -40,7 +39,7 @@ void InitGrid()
             {
                 DrawRectangleLines(origin.x + gridSIDE*i, origin.y + gridSIDE*j, gridSIDE, gridSIDE, myRAYWHITE);
             } else {
-                DrawRectangle(origin.x + gridSIDE*i, origin.y + gridSIDE*j, gridSIDE, gridSIDE, colors[rand() % 5]);
+                DrawRectangle(origin.x + gridSIDE*i, origin.y + gridSIDE*j, gridSIDE, gridSIDE, RAYWHITE);
                 gridAlive++;
             }
         }
@@ -122,7 +121,7 @@ void DrawGrid()
             {
                 DrawRectangleLines(origin.x + gridSIDE*i, origin.y + gridSIDE*j, gridSIDE, gridSIDE, RAYWHITE);
             } else {
-                DrawRectangle(origin.x + gridSIDE*i, origin.y + gridSIDE*j, gridSIDE, gridSIDE, colors[rand() % 5]);
+                DrawRectangle(origin.x + gridSIDE*i, origin.y + gridSIDE*j, gridSIDE, gridSIDE, RAYWHITE);
                 gridAlive++;
             }
         }
@@ -147,6 +146,8 @@ int main(int argc, char** argv) {
     if (fps <= 0) {
         fps = 5;
     }
+
+    bool ispaused = false;
     SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_WINDOW_TRANSPARENT | FLAG_WINDOW_UNDECORATED);
     
     InitWindow(gridSIDE*(gridCOUNT+2), gridSIDE*(gridCOUNT+2), "CONWAY's GAME OF LIFE");
@@ -156,11 +157,17 @@ int main(int argc, char** argv) {
     InitGrid();
     while (!WindowShouldClose())
     {
+        if (IsKeyPressed(KEY_SPACE))
+        {
+            ispaused = !ispaused;
+        }
         BeginDrawing();
         ClearBackground(myBLACK);
-
-        UpdateGrid();
         DrawGrid();
+        if (!ispaused)
+        {
+            UpdateGrid();
+        }
         DrawText(TextFormat("Alive Grids: %d", gridAlive), 0, 0, 25, RAYWHITE);
         
         EndDrawing();
